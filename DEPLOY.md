@@ -24,3 +24,6 @@ Facebook/TikTok sources are managed through the admin review workflow, then publ
 - Research API excludes commercial users; do not use it for this travel business: https://developers.tiktok.com/docs/en/research-api-faq
 - Broad automatic discovery requires an approved commercial search/data provider with confirmed reuse terms and a spending limit. None has been selected or purchased.
 - Enter secrets directly in Render environment settings; never in chat or source control. No Facebook/TikTok connector environment variables are implemented yet.
+
+## Keyless initial places
+backend/app/data/places.json contains six real named Myanmar landmarks, source URLs, coordinates, translated names and collection timestamps. Served locally through /catalog and merged into /hotspots and /routes; no provider credentials or external calls on visitor requests. This is a dated map snapshot, not automatic SNS discovery or a live business-status feed. Catalog source_kind/openstreetmap and location_verified=false must remain visible in status/references. Dataset is redistributed under ODbL and downloadable through /catalog with attribution. Future updates require fresh source review and a release; do not silently claim live refresh.
