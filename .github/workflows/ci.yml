@@ -1,0 +1,35 @@
+name: verify
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: travel
+        ports: [5432:5432]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements.txt
+      - run: cd backend && pytest -q
+      - run: cd backend && alembic upgrade head && alembic current
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:test@localhost:5432/travel
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: cd frontend && pnpm install --frozen-lockfile && pnpm typecheck && pnpm build
+      - run: docker compose build
+        env:
+          POSTGRES_PASSWORD: ci-test-password
+          ADMIN_TOKEN: ci-admin-token-000000000000000000000000
+          RECEIPT_SECRET: ci-receipt-token-000000000000000000000
