@@ -43,3 +43,5 @@
 - Local API suite: 10 passed (SQLite, mocked AI). Production frontend build and TypeScript passed. No schema changes; migration checks remain in CI.
 - TikTok Display API requires approved app/account consent; Research API FAQ excludes commercial users. Facebook docs returned 429; exact permissions not verified.
 - Automatic all-platform hotspot discovery remains incomplete: no credentials supplied or commercial data provider selected.
+
+- Live Render update c08b623 verified in the public SNS tab: region/keyword encoded in external search URL; real public Rangoon Tea House Facebook page submitted successfully and shown as pending review. No popularity claims or map publication. No customer information submitted. Screenshot saved separately. Remote CI: https://github.com/Phoo1911/myanmar-journey/actions/runs/39583189762 (completed successfully, 4m23s: API tests, PostgreSQL migration, production build, Compose and combined free image smoke checks).
