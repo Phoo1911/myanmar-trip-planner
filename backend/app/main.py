@@ -235,16 +235,22 @@ def publish_hotspot(body:HotspotInput,s:Session=Depends(db)):
     try:s.commit()
     except IntegrityError:s.rollback();raise HTTPException(409,'Already published')
     return {'id':body.video_id}
+from .catalog import catalog_places, snapshot
+
+@app.get('/catalog')
+def source_catalog():
+    return snapshot()
+
 @app.get('/hotspots')
-def hotspots(q:str='',category:str='',s:Session=Depends(db)):
+def hotspots(q:str='',category:str='',place_id:str='',s:Session=Depends(db)):
     from datetime import timedelta
-    output=[]
+    output=catalog_places(q,category,place_id)
     for h in s.scalars(select(Hotspot)):
         data=json.loads(h.payload);video=s.get(SocialVideo,data['video_id'])
         if not video:continue
         evidence=json.loads(video.payload)
         if datetime.fromisoformat(evidence['collected_at'])<datetime.now(timezone.utc)-timedelta(days=30):continue
-        if q.casefold() not in ' '.join(data['name'].values()).casefold() or (category and data['category']!=category):continue
+        if q.casefold() not in ' '.join(data['name'].values()).casefold() or (category and data['category']!=category) or (place_id and data['place_id']!=place_id):continue
         data['evidence']=evidence;data['price']=None;data['availability']=None;data['mode']='request_only';output.append(data)
     return sorted(output,key=lambda v:v['evidence'].get('score') or 0,reverse=True)
 
