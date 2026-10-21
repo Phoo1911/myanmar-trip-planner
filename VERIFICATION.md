@@ -37,3 +37,9 @@
 - 한국어/영어/미얀마어 UI 제공. 미얀마어 원어민 검수, 개인정보 고지와 운영 연락처, 실공급사 계약·이행 절차는 실제 고객 공개 전 필요.
 - Starlette TestClient의 향후 httpx 변경 경고 및 GitHub Actions 런타임 전환 안내가 있음. 테스트 실패는 아님.
 
+
+## Public SNS submission update — 2026-10-21
+- Added region/keyword external Facebook and TikTok search entry points and public link submission using the existing validated/rate-limited endpoint. Review-pending, failure and busy states are explicit. No automatic collector claimed.
+- Local API suite: 10 passed (SQLite, mocked AI). Production frontend build and TypeScript passed. No schema changes; migration checks remain in CI.
+- TikTok Display API requires approved app/account consent; Research API FAQ excludes commercial users. Facebook docs returned 429; exact permissions not verified.
+- Automatic all-platform hotspot discovery remains incomplete: no credentials supplied or commercial data provider selected.
