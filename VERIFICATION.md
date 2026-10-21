@@ -61,3 +61,8 @@
 - Geoapify official pricing separately verified: free commercial production use with attribution, 3000 credits/day, no card, API key required. https://www.geoapify.com/pricing/ Actual Myanmar Geoapify data not queried (no key).
 - Open-Meteo free endpoint is noncommercial only; unsuitable for free commercial production weather integration. Overpass public instances explicitly discourage relying on them as an app backend. No third-party subscriptions created.
 - Render c99e428 deployed Live. Logs confirm API /health200 before Next startup. Public UI verified loading→successful empty-list message without connection error. Published recommendation records remain zero; no location provider has been connected by this fix.
+
+## Working mapped-place catalog — 2026-10-21
+- Six real named landmarks resolved via small one-time Nominatim lookup with identifying header, sequential calls and two-second spacing, persisted to attributed ODbL snapshot. An attempted bounded Overpass import failed with timeout/502 and alternative provider errors; none of those failed responses were used. No public-provider calls on visitor requests.
+- /catalog serves reusable source data; /hotspots merges mapped landmarks with reviewed SNS evidence; /routes accepts mapped IDs. Names/region/category search, map selection, references/date, trip add and geographic ordering connected. No operating status, price, availability or SNS engagement fabricated.
+- Local API suite 11 passed, including catalog source/coordinate invariants, search/filter, route success and existing expiry/security boundaries. Frontend production build and typecheck passed. No schema changes.
