@@ -1,0 +1,58 @@
+# Paid production resources. Review Render's displayed price before creation.
+services:
+  - type: pserv
+    name: myanmar-journey-api
+    runtime: docker
+    region: singapore
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    preDeployCommand: alembic upgrade head
+    dockerCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: myanmar-journey-db
+          property: connectionString
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: RECEIPT_SECRET
+        generateValue: true
+      - key: INTERNAL_PROXY_TOKEN
+        generateValue: true
+      - key: REQUIRE_PROXY_TOKEN
+        value: 'true'
+      - key: CORS_ORIGINS
+        value: ''
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+  - type: web
+    name: myanmar-journey-web
+    runtime: docker
+    region: singapore
+    plan: starter
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: /api
+      - key: API_HOSTPORT
+        fromService:
+          type: pserv
+          name: myanmar-journey-api
+          property: hostport
+      - key: INTERNAL_PROXY_TOKEN
+        fromService:
+          type: pserv
+          name: myanmar-journey-api
+          envVarKey: INTERNAL_PROXY_TOKEN
+databases:
+  - name: myanmar-journey-db
+    region: singapore
+    plan: basic-256mb
+    databaseName: travel
+    user: travel
+    ipAllowList: []
