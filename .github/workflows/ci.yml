@@ -1,5 +1,8 @@
 name: verify
 on: [push, pull_request]
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -29,6 +32,24 @@ jobs:
           node-version: '22'
       - run: cd frontend && pnpm install --frozen-lockfile && pnpm typecheck && pnpm build
       - run: docker compose build
+        env:
+          POSTGRES_PASSWORD: ci-test-password
+          ADMIN_TOKEN: ci-admin-token-000000000000000000000000
+          RECEIPT_SECRET: ci-receipt-token-000000000000000000000
+      - name: Start containers and verify web to API to PostgreSQL
+        run: |
+          docker compose up -d
+          curl --retry 20 --retry-delay 2 --retry-all-errors -fsS http://localhost:8000/health
+          curl --retry 20 --retry-delay 2 --retry-all-errors -fsS http://localhost:3000 > /tmp/page.html
+          python -c "assert 'Myanmar Journey' in open('/tmp/page.html').read()"
+          curl --retry 10 --retry-delay 2 --retry-all-errors -fsS http://localhost:3000/api/health
+        env:
+          POSTGRES_PASSWORD: ci-test-password
+          ADMIN_TOKEN: ci-admin-token-000000000000000000000000
+          RECEIPT_SECRET: ci-receipt-token-000000000000000000000
+      - name: Stop test containers
+        if: always()
+        run: docker compose down -v
         env:
           POSTGRES_PASSWORD: ci-test-password
           ADMIN_TOKEN: ci-admin-token-000000000000000000000000
