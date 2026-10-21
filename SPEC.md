@@ -42,3 +42,7 @@ Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용
 - 원본 링크와 위치 출처는 백엔드 데이터와 관리자 검토 화면에 보존. 공개 카드에는 접힌 참고자료 안에 일반적인 원본·위치 출처 링크만 제공.
 - 관리자 기존 수집/링크 등록/위치 검증 유지. 자동 Facebook/TikTok 수집 미연동 사실을 숨겨 완료로 주장하지 않으며 운영 안내는 관리자에게 제공.
 - 빈 목록/검색 결과 없음/연결 실패를 구별. 지도와 일정 추가 흐름 유지. 검증: 기존 API 테스트와 빌드, 운영 화면 확인.
+
+## Cold-start connection recovery
+- Start public Next.js only after authenticated internal API /health (including DB) succeeds; fail startup after 60s or early API exit.
+- Recommended places show loading, retry failed GET at most three times, support manual retry, cancel stale requests on unmount. Empty data only appears after successful JSON array response; no auto-retry of writes.
