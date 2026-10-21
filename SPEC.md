@@ -31,3 +31,8 @@ Backend contract tests, negative authorization/validation tests, AI mocked bound
 ## 직접 예약 확장 수용 기준
 계약상 예약 확정 권한이 있는 운영자 배정 재고만 직접 예약. 공급사 계약 근거, 검증 시각, 만료 시각, 날짜별 인원 재고와 세금 포함 1인 최종 가격(최소 화폐 단위) 필수. 실데이터 seed 금지. 지급 방식은 현장 결제만 지원하며 온라인 결제 완료 표시 금지. 재고·가격 버전 재확인, 원자적 차감, 중복 요청 및 잔여 재고 초과 방지. 취소는 무료 취소 정책으로만 재고를 한 번 복원. 예약 영수증에는 현장 결제 및 확정 범위를 명시.
 Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용자 입력 후보 제목과 URL만 저장하고 조회수·좋아요는 미검증 null. 관리자 위치 검증 후 지도 공개. 선택한 검증 장소를 일수와 지역에 맞춰 그룹화하되 직선거리 순서이며 실제 길찾기/소요시간/안전 보장 아님.
+
+## 무료 체험 배포
+기본 render.yaml은 무료 Web 서비스 1개와 무료 PostgreSQL만 생성. Next.js와 FastAPI를 한 컨테이너에 넣고 API는 loopback에만 바인딩. 내부 토큰·관리자 인증·DB 검증은 유지. 무료에서 지원하지 않는 private service/pre-deploy job 사용 안 함. 시작 시 마이그레이션 후 두 프로세스 실행, 하나가 종료되면 모두 정리하고 컨테이너 재시작 유도.
+무료 UI는 자동 대기 및 DB 30일 만료와 실제 고객 데이터 입력 금지를 명시. OpenAI/YouTube 키는 기본 빈 값이며 유료 호출 없음. 이 배포는 production SLA나 영구 데이터 보관을 제공하지 않음. 이전 유료 구성은 render.production.yaml로 분리하고 자동 적용하지 않음.
+수용: 루트 무료 이미지 빌드→PostgreSQL 연결→웹/API health→인증 거부 확인. Render 생성 화면에서 free 리소스만 확인한 후 무료 배포.
