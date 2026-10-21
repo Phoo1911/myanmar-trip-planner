@@ -2,7 +2,7 @@ import {NextRequest,NextResponse} from 'next/server';
 export const dynamic='force-dynamic';
 async function proxy(req:NextRequest,{params}:{params:Promise<{path:string[]}>}){
  const {path}=await params;
- if(!['health','places','products','safety','itineraries','bookings','admin','hotspots','social','offers','reservations','routes'].includes(path[0]))return NextResponse.json({detail:'Not found'},{status:404});
+ if(!['catalog','health','places','products','safety','itineraries','bookings','admin','hotspots','social','offers','reservations','routes'].includes(path[0]))return NextResponse.json({detail:'Not found'},{status:404});
  const base=process.env.API_HOSTPORT?'http://'+process.env.API_HOSTPORT:process.env.API_INTERNAL_ORIGIN||'http://127.0.0.1:8000';
  const headers=new Headers();
  for(const name of ['content-type','authorization','idempotency-key']){const v=req.headers.get(name);if(v)headers.set(name,v)}
