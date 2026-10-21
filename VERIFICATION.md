@@ -53,3 +53,10 @@
 
 - Live release 5ac9d51: public recommended-places heading and filters rendered; Facebook/TikTok labels count 0 and public post-link input count 0. Existing source records preserved. Screenshot: recommended-places-live.png. CI: https://github.com/Phoo1911/myanmar-journey/actions/runs/39584413720.
 - Remote CI completed successfully in 3m29s: API tests, PostgreSQL migrations, frontend build and separate/combined image runtime checks.
+
+## Cold-start diagnosis and API evaluation — 2026-10-21
+- Browser reproduced Render application-loading interstitial. After wake, /api/hotspots returned JSON [] (no published places), distinguishing server wake failure from missing recommendation data.
+- Fixed public-server startup order: wait for authenticated API/DB health before Next starts. Recommended-place GET now retries three times with per-request timeout, cancellation on unmount, loading/empty/error states and manual retry; no writes retried. Local 10 API tests and production build/type checking passed. CI c99e428: https://github.com/Phoo1911/myanmar-journey/actions/runs/39635882195 (completed successfully in 3m43s, including PostgreSQL migrations and combined free image API readiness/runtime check).
+- freepublicapis.com lists Nominatim. One real identified HTTP request for Shwedagon Pagoda with countrycodes=mm returned HTTP200, worship POI 16.7990633,96.1494229 and a same-name dry-cleaning result. Category filtering is essential. No generic public Nominatim service integrated: official policy requires informed developer choice, app-wide <=1req/sec, cache, attribution, no autocomplete/systematic POI extraction. https://operations.osmfoundation.org/policies/nominatim/
+- Geoapify official pricing separately verified: free commercial production use with attribution, 3000 credits/day, no card, API key required. https://www.geoapify.com/pricing/ Actual Myanmar Geoapify data not queried (no key).
+- Open-Meteo free endpoint is noncommercial only; unsuitable for free commercial production weather integration. Overpass public instances explicitly discourage relying on them as an app backend. No third-party subscriptions created.
