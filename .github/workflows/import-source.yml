@@ -1,1 +1,38 @@
-
+name: Import verified source
+on:
+  push:
+    paths: ['source.zip', '.github/workflows/import-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify and restore source tree
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, zipfile
+          archive = Path('source.zip')
+          if not archive.exists():
+              raise SystemExit('No source archive to import')
+          expected = 'fdc55ad4541a8c74fc1dfecba3a94dc1d15f605623bbd352ed51b0c207a05518'
+          assert hashlib.sha256(archive.read_bytes()).hexdigest() == expected, 'Source checksum mismatch'
+          with zipfile.ZipFile(archive) as source:
+              for item in source.infolist():
+                  path = Path(item.filename)
+                  assert not path.is_absolute() and '..' not in path.parts, 'Unsafe archive path'
+                  if path.parts[0] == '.github':
+                      continue
+                  source.extract(item, '.')
+          PY
+      - name: Commit source files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git rm source.zip
+          git commit -m 'Restore verified application source tree'
+          git push
