@@ -45,3 +45,8 @@
 - Automatic all-platform hotspot discovery remains incomplete: no credentials supplied or commercial data provider selected.
 
 - Live Render update c08b623 verified in the public SNS tab: region/keyword encoded in external search URL; real public Rangoon Tea House Facebook page submitted successfully and shown as pending review. No popularity claims or map publication. No customer information submitted. Screenshot saved separately. Remote CI: https://github.com/Phoo1911/myanmar-journey/actions/runs/39583189762 (completed successfully, 4m23s: API tests, PostgreSQL migration, production build, Compose and combined free image smoke checks).
+
+## Recommended places presentation — 2026-10-21
+- Replaced public SNS platform controls, external searches and submission form with a recommended-places experience. Removed collection/ranking implementation text and engagement metrics from public cards. Retained generic collapsible references and backend/admin evidence workflows. No source records deleted.
+- Local: 10 API tests passed; Next.js production build including type checking passed. No backend/schema changes. Existing PostgreSQL migration and container checks run in CI on the release.
+- Backend Facebook/TikTok automatic discovery remains unconnected; this presentation change does not enable it.
