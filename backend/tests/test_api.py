@@ -61,7 +61,7 @@ def test_shared_limiter_and_proxy():
         assert c.get('/places').status_code==401
         assert c.get('/places',headers={'X-Internal-Token':'proxy-test'}).status_code==200
 def test_social_curation():
-    assert c.get('/hotspots').json()==[]
+    assert all(p.get('source_kind')=='openstreetmap' for p in c.get('/hotspots').json())
     with patch.dict(os.environ,{'YOUTUBE_API_KEY':''}):
         assert c.post('/admin/social/sync',headers=headers,json={'place_id':'yangon'}).status_code==503
     assert c.get('/admin/social').status_code==401
@@ -75,10 +75,10 @@ def test_social_curation():
     assert c.post('/admin/hotspots',json=data,headers=headers).status_code==201
     assert c.post('/admin/hotspots',json=data,headers=headers).status_code==409
     assert c.get('/hotspots?q=테스트&category=cafe').json()[0]['price'] is None
-    assert c.get('/hotspots?category=heritage').json()==[]
+    assert not any(p['id']=='abcdefghijk' for p in c.get('/hotspots?category=heritage').json())
     with m.Session(m.engine) as s:
         v=s.get(m.SocialVideo,'abcdefghijk');old=json.loads(v.payload);old['collected_at']=(datetime.now(timezone.utc)-timedelta(days=31)).isoformat();v.payload=json.dumps(old);s.commit()
-    assert c.get('/hotspots').json()==[]
+    assert all(p.get('source_kind')=='openstreetmap' for p in c.get('/hotspots').json())
 
 def test_allocated_inventory_reservation_and_cancellation():
     from datetime import datetime,timezone,timedelta,date
@@ -133,3 +133,25 @@ def test_last_slot_concurrent_bookings(tmp_path,monkeypatch):
     assert c.get('/offers').json()==[]
     assert c.patch('/admin/offers/'+item['id']+'/close',headers=headers).status_code==200
     engine.dispose()
+
+
+def test_mapped_catalog_search_references_and_route():
+    data=c.get('/catalog').json()
+    assert data['license']=='https://opendatacommons.org/licenses/odbl/1-0/'
+    places=data['places'];assert len(places)>=6
+    assert len({p['id'] for p in places})==len(places)
+    for p in places:
+        assert 9<=p['lat']<=29 and 92<=p['lng']<=102
+        assert p['source'].startswith('https://www.openstreetmap.org/')
+        assert p['price'] is None and p['availability'] is None
+        assert p['location_verified'] is False
+    first=places[0]
+    found=c.get('/hotspots',params={'q':first['name']['en'],'place_id':first['place_id'],'category':first['category']}).json()
+    assert any(p['id']==first['id'] for p in found)
+    assert all(p['evidence']['score'] is None for p in found if p.get('source_kind')=='openstreetmap')
+    assert c.get('/hotspots?q=impossible-catalog-search-887799').json()==[]
+    same_region=[p['id'] for p in places if p['place_id']==first['place_id']][:2]
+    route=c.post('/routes',json={'hotspot_ids':same_region,'days':1})
+    assert route.status_code==200
+    assert {p['id'] for p in route.json()['days'][0]['stops']}==set(same_region)
+    assert route.json()['road_routing'] is False
