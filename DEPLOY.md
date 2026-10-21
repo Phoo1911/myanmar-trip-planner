@@ -15,3 +15,12 @@ Render → New Blueprint → Phoo1911/myanmar-journey → main → render.yaml. 
 
 공식 제한: https://render.com/docs/free
 
+
+## SNS automatic integrations
+Facebook/TikTok currently support link submission, admin location review, then map/route publication. Search buttons open the external platform; they are not automatic collectors. Adding a key alone will not activate an unimplemented connector.
+
+- Facebook: provide managed/partner Page URLs and access, then a Meta developer app. Required Pages API permissions, tokens and public-content review depend on the app use case; confirm in the dashboard. Do not assume an unrestricted all-post keyword search API. Official references: https://developers.facebook.com/docs/pages-api/ and https://developers.facebook.com/docs/features-reference/page-public-content-access/ (official docs returned 429 during this verification; exact permissions not verified).
+- TikTok: approved Login Kit and Display API, user.info.basic/video.list consent, OAuth callback and refresh implementation. This retrieves consenting accounts, not global destination trends: https://developers.tiktok.com/docs/en/display-api-get-started
+- Research API excludes commercial users; do not use it for this travel business: https://developers.tiktok.com/docs/en/research-api-faq
+- Broad automatic discovery requires an approved commercial search/data provider with confirmed reuse terms and a spending limit. None has been selected or purchased.
+- Enter secrets directly in Render environment settings; never in chat or source control. No Facebook/TikTok connector environment variables are implemented yet.
