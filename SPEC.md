@@ -46,3 +46,9 @@ Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용
 ## Cold-start connection recovery
 - Start public Next.js only after authenticated internal API /health (including DB) succeeds; fail startup after 60s or early API exit.
 - Recommended places show loading, retry failed GET at most three times, support manual retry, cancel stale requests on unmount. Empty data only appears after successful JSON array response; no auto-retry of writes.
+
+## Usable keyless mapped-place catalog
+- Six individually named OSM landmark lookups in Yangon, Bagan and Inle Lake, stored as an attributed ODbL snapshot. Visitors never depend on public Overpass/Nominatim calls. Public /catalog returns the reusable source snapshot; /hotspots merges catalog and reviewed social records.
+- Catalog records have source_kind=openstreetmap and location_verified=false. They represent map entries, not reviewed SNS popularity, live opening status, verified prices or available inventory. Source links and collection date shown in references, with mapped/unverified status.
+- Search/filter mapped places, select marker/list, add deduplicated places to trip, generate regional geographic visit order through existing /routes. Published SNS expiry checks remain unchanged. Map catalog source is not subject to SNS evidence expiry; dated snapshots must not be presented as live.
+- Acceptance: nonempty actual catalog, valid Myanmar coordinates, source/ODbL access, search/category/region filtering, catalog route success, invalid route rejection, null price/availability; live browser search→map→add→route.
