@@ -252,6 +252,9 @@ def hotspots(q:str='',category:str='',place_id:str='',s:Session=Depends(db)):
         if datetime.fromisoformat(evidence['collected_at'])<datetime.now(timezone.utc)-timedelta(days=30):continue
         if q.casefold() not in ' '.join(data['name'].values()).casefold() or (category and data['category']!=category) or (place_id and data['place_id']!=place_id):continue
         data['evidence']=evidence;data['price']=None;data['availability']=None;data['mode']='request_only';output.append(data)
+    from .concierge import facts
+    verified_facts=facts(s)
+    for item in output:item['local_facts']=[f for f in verified_facts if f['place_id']==item['id']]
     return sorted(output,key=lambda v:v['evidence'].get('score') or 0,reverse=True)
 
 from .commerce import router as commerce_router
@@ -319,3 +322,6 @@ def make_route(body:RouteInput,s:Session=Depends(db)):
             output[day_index+i//4]['stops'].append(spot)
         day_index+=math.ceil(len(region_spots)/4)
     return {'mode':'geographic_draft','days':output,'road_routing':False,'travel_times_verified':False,'requires_safety_review':True}
+
+from .concierge import router as concierge_router
+app.include_router(concierge_router)
