@@ -21,8 +21,14 @@
 - 깨끗한 Git 체크아웃에 빈 public 폴더가 없는 문제: Docker 빌드에서 명시적으로 생성.
 - Compose의 웹 서버 프록시가 API 컨테이너를 찾도록 API_INTERNAL_ORIGIN 지정.
 
-## 외부 배포 상태
-Render가 저장소의 Blueprint를 읽었으나 유료 production 리소스 생성에 결제수단 등록을 요구함. 계정 소유자가 직접 카드 등록을 완료해야 한다. 서비스 생성·외부 HTTPS 배포는 아직 미완료이며 live URL은 없다. 실제 요금과 생성될 리소스를 최종 화면에서 확인한 후 진행한다.
+## 실제 무료 배포 완료
+- 공개 주소: https://myanmar-journey-free.onrender.com
+- Render 웹: myanmar-journey-free, **Free** 플랜, 서비스 ID srv-dbc8ahifngtc739ch26g.
+- Blueprint: exs-dbc7unt9fdbs73c5vno0. 웹 1개와 무료 PostgreSQL 1개만 생성. 기존 타 서비스는 변경하지 않음.
+- Render 상태: Deploy succeeded | Live. 실제 Render DB는 PostgreSQL 18이며 배포 시작 시 마이그레이션과 API 시작 완료.
+- 공개 사이트 브라우저 검증: 여행지 3개와 지도 로딩, 공식 경보 표시, 일정 생성 POST 성공 및 '기본 일정 · AI 키 미설정' 표시. 유료 AI/YouTube 키를 설정하지 않았고 카드 등록 없이 생성.
+- 무료 통합 이미지 검증: https://github.com/Phoo1911/myanmar-journey/actions/runs/39576158990 (dd14dc5e6d51a7bc58a90a255e5c8acc36031ac1). 단일 이미지의 웹→loopback API→PostgreSQL 연결과 관리자 미인증 401 확인.
+- 제한: 무료 웹은 미사용 시 대기, 무료 DB는 생성 후 30일 만료. 실제 고객정보·실제 예약을 받지 않는 체험판이며 UI에 명시. 워크스페이스 무료 사용량은 다른 서비스와 공유. 유료 production/SLA/영구 데이터 보관을 제공하지 않음.
 
 ## 검증 한계
 - 실제 OpenAI/YouTube 호출은 계정 키 미제공으로 미실행. AI는 mock 경계와 명시적 템플릿으로 검증. Facebook/TikTok은 링크 검토 흐름이며 자동 크롤링/영상 이해 API는 미구현.
@@ -30,3 +36,4 @@ Render가 저장소의 Blueprint를 읽었으나 유료 production 리소스 생
 - 마지막 재고 동시성 테스트는 SQLite에서 수행. PostgreSQL에서는 마이그레이션 및 컨테이너 연결을 확인했으며 전체 예약 동시성 시나리오를 별도로 수행하지 않음.
 - 한국어/영어/미얀마어 UI 제공. 미얀마어 원어민 검수, 개인정보 고지와 운영 연락처, 실공급사 계약·이행 절차는 실제 고객 공개 전 필요.
 - Starlette TestClient의 향후 httpx 변경 경고 및 GitHub Actions 런타임 전환 안내가 있음. 테스트 실패는 아님.
+
