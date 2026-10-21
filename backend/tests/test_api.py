@@ -155,3 +155,74 @@ def test_mapped_catalog_search_references_and_route():
     assert route.status_code==200
     assert {p['id'] for p in route.json()['days'][0]['stops']}==set(same_region)
     assert route.json()['road_routing'] is False
+
+def test_concierge_private_quote_accept_and_confirmation():
+    from datetime import date,timedelta,datetime,timezone
+    preferences={'region':'yangon','start_date':(date.today()+timedelta(days=15)).isoformat(),'days':2,'guests':2,'interests':['heritage','cafe'],'pace':'relaxed','mobility_needs':'Synthetic low-walking request','services':['transport'],'notes':'Synthetic fixture','language':'ko'}
+    preview=c.post('/concierge/preview',json=preferences)
+    assert preview.status_code==200 and preview.json()['mode']=='catalog_draft'
+    assert 'cafe' in preview.json()['unmatched_interests']
+    assert preview.json()['road_routing'] is False
+    body={**preferences,'email':'synthetic@example.com','safety_ack':True,'privacy_ack':True}
+    key={'Idempotency-Key':'concierge-synthetic-0001'}
+    created=c.post('/concierge/requests',json=body,headers=key);assert created.status_code==201
+    receipt=created.json();bid=receipt['id'];owner={'Authorization':'Bearer '+receipt['token']}
+    assert c.post('/concierge/requests',json=body,headers=key).json()['id']==bid
+    assert c.post('/concierge/requests',json={**body,'guests':3},headers=key).status_code==409
+    assert c.get('/concierge/requests/'+bid).status_code==404
+    assert c.get('/concierge/admin/requests').status_code==401
+    assert 'token' not in c.get('/concierge/admin/requests',headers=headers).json()[0]
+    q={'version':1,'supplier':'Synthetic supplier','service':'transport','total_minor':10000,'currency':'USD','valid_until':(datetime.now(timezone.utc)+timedelta(days=2)).isoformat(),'includes':'Synthetic car total','exclusions':'Meals excluded','cancellation':'Free before service date','source_reference':'synthetic-written-quote','supplier_verified':True,'taxes_included':True}
+    assert c.post('/concierge/admin/requests/'+bid+'/quotes',json=q).status_code==401
+    assert c.post('/concierge/admin/requests/'+bid+'/quotes',headers=headers,json={**q,'total_minor':0}).status_code==422
+    quoted=c.post('/concierge/admin/requests/'+bid+'/quotes',headers=headers,json=q);assert quoted.status_code==200
+    assert 'source_reference' not in quoted.json()['quotes'][0]
+    assert c.post('/concierge/admin/requests/'+bid+'/quotes',headers=headers,json=q).status_code==409
+    quote_id=quoted.json()['quotes'][0]['id'];accept={'version':2,'quote_id':quote_id,'terms_ack':True}
+    assert c.post('/concierge/requests/'+bid+'/accept',json=accept).status_code==404
+    accepted=c.post('/concierge/requests/'+bid+'/accept',headers=owner,json=accept);assert accepted.status_code==200 and accepted.json()['status']=='quote_accepted'
+    assert c.post('/concierge/requests/'+bid+'/accept',headers=owner,json=accept).json()['version']==3
+    confirmation={'version':3,'booking_reference':'SYNTHETIC-001','source_reference':'synthetic-written-confirmation','confirmation_authority':True,'written_supplier_confirmation':True}
+    assert c.post('/concierge/admin/requests/'+bid+'/confirm',headers=headers,json={**confirmation,'confirmation_authority':False}).status_code==422
+    confirmed=c.post('/concierge/admin/requests/'+bid+'/confirm',headers=headers,json=confirmation)
+    assert confirmed.status_code==200 and confirmed.json()['status']=='supplier_confirmed'
+    assert confirmed.json()['payment_status']=='unpaid' and confirmed.json()['automatic_supplier_delivery'] is False
+    assert 'confirmation_evidence' not in confirmed.json()
+    message={'version':4,'text':'Synthetic question','language':'ko'}
+    assert c.post('/concierge/requests/'+bid+'/messages',headers=owner,json={**message,'translations':{'en':'unreviewed'}}).status_code==422
+    assert c.post('/concierge/requests/'+bid+'/messages',headers=owner,json=message).status_code==200
+    assert c.post('/concierge/requests/'+bid+'/messages',headers=owner,json=message).status_code==409
+    reply={'version':5,'text':'Synthetic operator reply','language':'en','translations':{'ko':'합성 검증 답변'},'translation_reviewed':True}
+    assert c.post('/concierge/admin/requests/'+bid+'/messages',headers=headers,json=reply).status_code==200
+    assert c.get('/concierge/requests/'+bid,headers=owner).json()['messages'][-1]['translation_reviewed'] is True
+
+def test_concierge_fact_expiry_and_expired_quote():
+    from datetime import date,datetime,timezone,timedelta
+    import json
+    place=m.catalog_places()[0]['id'];now=datetime.now(timezone.utc)
+    fact={'place_id':place,'field':'cash_only','value':'yes','source':'https://example.com/synthetic-evidence','checked_at':now.isoformat(),'valid_until':(now+timedelta(days=1)).isoformat(),'version':0,'locally_verified':True}
+    assert c.post('/concierge/admin/facts',json=fact).status_code==401
+    assert c.post('/concierge/admin/facts',headers=headers,json={**fact,'checked_at':(now+timedelta(days=1)).isoformat()}).status_code==422
+    assert c.post('/concierge/admin/facts',headers=headers,json=fact).status_code==200
+    assert c.post('/concierge/admin/facts',headers=headers,json=fact).status_code==409
+    assert c.get('/hotspots').json()[0]['local_facts'][0]['value']=='yes'
+    from app.concierge import LocalFact,JourneyRequest
+    with m.Session(m.engine) as s:
+        row=s.scalar(m.select(LocalFact));data=json.loads(row.payload);data['valid_until']=(now-timedelta(seconds=1)).isoformat();row.payload=json.dumps(data);s.commit()
+    expired=c.get('/concierge/facts',params={'place_id':place}).json()[0]
+    assert expired['expired'] is True and expired['value']=='unknown'
+    body={'region':'bagan','start_date':(date.today()+timedelta(days=15)).isoformat(),'days':1,'guests':1,'interests':['heritage'],'email':'expiry@example.com','safety_ack':True,'privacy_ack':True}
+    receipt=c.post('/concierge/requests',headers={'Idempotency-Key':'concierge-expiry-0001'},json=body).json();bid=receipt['id']
+    q={'version':1,'supplier':'Synthetic only','service':'guide','total_minor':5000,'currency':'MMK','valid_until':(now+timedelta(hours=1)).isoformat(),'includes':'Guide total','exclusions':'Meals excluded','cancellation':'Synthetic terms','source_reference':'synthetic-source','supplier_verified':True,'taxes_included':True}
+    quoted=c.post('/concierge/admin/requests/'+bid+'/quotes',headers=headers,json=q).json()
+    with m.Session(m.engine) as s:
+        row=s.get(JourneyRequest,bid);data=json.loads(row.payload);data['quotes'][0]['valid_until']=(now-timedelta(seconds=1)).isoformat();row.payload=json.dumps(data);s.commit()
+    assert c.post('/concierge/requests/'+bid+'/accept',headers={'Authorization':'Bearer '+receipt['token']},json={'version':2,'quote_id':quoted['quotes'][0]['id'],'terms_ack':True}).status_code==409
+
+def test_concierge_draft_excludes_verified_closed_places():
+    from datetime import date,datetime,timezone,timedelta
+    p=m.catalog_places()[0];now=datetime.now(timezone.utc)
+    body={'place_id':p['id'],'field':'opening','value':'no','source':'https://example.com/synthetic-closure','checked_at':now.isoformat(),'valid_until':(now+timedelta(days=1)).isoformat(),'version':0,'locally_verified':True}
+    assert c.post('/concierge/admin/facts',headers=headers,json=body).status_code==200
+    preview=c.post('/concierge/preview',json={'region':p['place_id'],'start_date':(date.today()+timedelta(days=14)).isoformat(),'days':2,'guests':2,'interests':['heritage']}).json()
+    assert all(stop['id']!=p['id'] for day in preview['days'] for stop in day['stops'])
