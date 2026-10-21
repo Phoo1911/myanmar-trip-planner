@@ -36,3 +36,8 @@ Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용
 기본 render.yaml은 무료 Web 서비스 1개와 무료 PostgreSQL만 생성. Next.js와 FastAPI를 한 컨테이너에 넣고 API는 loopback에만 바인딩. 내부 토큰·관리자 인증·DB 검증은 유지. 무료에서 지원하지 않는 private service/pre-deploy job 사용 안 함. 시작 시 마이그레이션 후 두 프로세스 실행, 하나가 종료되면 모두 정리하고 컨테이너 재시작 유도.
 무료 UI는 자동 대기 및 DB 30일 만료와 실제 고객 데이터 입력 금지를 명시. OpenAI/YouTube 키는 기본 빈 값이며 유료 호출 없음. 이 배포는 production SLA나 영구 데이터 보관을 제공하지 않음. 이전 유료 구성은 render.production.yaml로 분리하고 자동 적용하지 않음.
 수용: 루트 무료 이미지 빌드→PostgreSQL 연결→웹/API health→인증 거부 확인. Render 생성 화면에서 free 리소스만 확인한 후 무료 배포.
+
+## 공개 SNS 발견 진입점 (2026-10-21)
+- SNS 탭에서 지역·검색어로 Facebook/TikTok 외부 검색을 새 창에 열고 원본 링크와 후보 이름을 /social/links로 제출. 관리자 토큰 불필요, 기존 서버 도메인 검증/요청 제한 적용.
+- 성공 시 검토 대기를 명시하며 자동 수집·즉시 지도 공개·인기 분석으로 표현하지 않음. 실패는 재시도 안내, 전송 중 중복 클릭 방지. 관리자 위치 검증 후에만 기존 지도/루트 흐름에 노출.
+- 수용: 공개 제출→관리자 큐→위치 검증→공개 장소→루트 기존 API 계약 테스트, frontend typecheck/build. 실제 외부 검색 결과는 로그인/플랫폼 상태에 좌우됨.
