@@ -1,0 +1,121 @@
+{
+  "attribution": "© OpenStreetMap contributors",
+  "license": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "collected_at": "2026-10-21T16:50:08.232164+00:00",
+  "places": [
+    {
+      "id": "osm-way-117388457",
+      "name": {
+        "ko": "쉐다곤 파고다",
+        "en": "Shwedagon Pagoda",
+        "my": "ရွှေတိဂုံဘုရား"
+      },
+      "place_id": "yangon",
+      "category": "heritage",
+      "lat": 16.7990633,
+      "lng": 96.1494229,
+      "source": "https://www.openstreetmap.org/way/117388457",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:49:54.232392+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    },
+    {
+      "id": "osm-way-131745510",
+      "name": {
+        "ko": "술레 파고다",
+        "en": "Sule Pagoda",
+        "my": "ဆူးလေဘုရား"
+      },
+      "place_id": "yangon",
+      "category": "heritage",
+      "lat": 16.7744095,
+      "lng": 96.1587656,
+      "source": "https://www.openstreetmap.org/way/131745510",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:49:57.161599+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    },
+    {
+      "id": "osm-way-23395611",
+      "name": {
+        "ko": "보족 아웅산 시장",
+        "en": "Bogyoke Aung San Market",
+        "my": "ဗိုလ်ချုပ်အောင်ဆန်းဈေး"
+      },
+      "place_id": "yangon",
+      "category": "heritage",
+      "lat": 16.7802627,
+      "lng": 96.1555892,
+      "source": "https://www.openstreetmap.org/way/23395611",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:50:00.098799+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    },
+    {
+      "id": "osm-way-220214181",
+      "name": {
+        "ko": "아난다 사원",
+        "en": "Ananda Pahto Temple",
+        "my": "အာနန္ဒာဘုရား"
+      },
+      "place_id": "bagan",
+      "category": "heritage",
+      "lat": 21.1708405,
+      "lng": 94.8676871,
+      "source": "https://www.openstreetmap.org/way/220214181",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:50:02.610724+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    },
+    {
+      "id": "osm-way-268276067",
+      "name": {
+        "ko": "쉐지곤 파고다",
+        "en": "Shwezigon Pagoda",
+        "my": "ရွှေစည်းခုံဘုရား"
+      },
+      "place_id": "bagan",
+      "category": "heritage",
+      "lat": 21.1953209,
+      "lng": 94.8938864,
+      "source": "https://www.openstreetmap.org/way/268276067",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:50:05.550605+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    },
+    {
+      "id": "osm-way-227139747",
+      "name": {
+        "ko": "파웅도우 파고다",
+        "en": "Phaung Daw Oo pagoda",
+        "my": "Phaung Daw Oo pagoda"
+      },
+      "place_id": "inle",
+      "category": "heritage",
+      "lat": 20.4743655,
+      "lng": 96.8902414,
+      "source": "https://www.openstreetmap.org/way/227139747",
+      "source_kind": "openstreetmap",
+      "location_verified": false,
+      "checked_at": "2026-10-21T16:50:08.232062+00:00",
+      "price": null,
+      "availability": null,
+      "mode": "request_only"
+    }
+  ]
+}
