@@ -50,3 +50,6 @@
 - Replaced public SNS platform controls, external searches and submission form with a recommended-places experience. Removed collection/ranking implementation text and engagement metrics from public cards. Retained generic collapsible references and backend/admin evidence workflows. No source records deleted.
 - Local: 10 API tests passed; Next.js production build including type checking passed. No backend/schema changes. Existing PostgreSQL migration and container checks run in CI on the release.
 - Backend Facebook/TikTok automatic discovery remains unconnected; this presentation change does not enable it.
+
+- Live release 5ac9d51: public recommended-places heading and filters rendered; Facebook/TikTok labels count 0 and public post-link input count 0. Existing source records preserved. Screenshot: recommended-places-live.png. CI: https://github.com/Phoo1911/myanmar-journey/actions/runs/39584413720.
+- Remote CI completed successfully in 3m29s: API tests, PostgreSQL migrations, frontend build and separate/combined image runtime checks.
