@@ -45,3 +45,13 @@ Translation is operator-reviewed original/translated text, not live automatic tr
 - 보안 헤더: frame-ancestors/object-src/base-uri 제한, frame 차단, nosniff, referrer/permissions 정책, production HSTS. 전체 script CSP는 Next 부트스트랩을 검증하지 않고 강제하지 않음.
 - 릴리스 검증: pnpm test / typecheck / build, pytest, Alembic head, API→DB 및 API 오류/복구, 저장 후 새로고침, 모바일 지도/목록. 전체 PG/Docker 검증은 원격 CI에서 수행. 실패 시 이전 Render 배포로 rollback. 신규 DB migration 없음; 로컬 초안은 지워질 수 있으나 서버 고객 데이터는 변경하지 않음.
 - 무료 배포 제한과 실제 공급사 연결 제한은 COMMERCIAL_REVIEW.md의 P0를 따른다. 무료 체험판을 상용 운영으로 전환하지 않는다.
+
+## 무료 콘텐츠 검색 연결 (2026-10-22)
+1. Tavily 공식 요금 페이지 https://www.tavily.com/pricing 는 카드 없는 월1000 무료 크레딧을 안내한다(확인2026-10-22). 가입 후 무료 플랜만 선택한다. PAYG·자동 충전·카드·유료 플랜을 켜지 않는다. 현재 에이전트 브라우저의 https://app.tavily.com/ 접속은 CloudFront403으로 차단되어 계정/키 발급은 수행하지 못했다.
+2. 사용자가 본인 브라우저에서 무료 계정/API 키를 준비하고, Render `myanmar-journey-free`의 Environment에 서버 전용 `TAVILY_API_KEY`를 직접 입력한다. 키를 채팅·소스·NEXT_PUBLIC 환경변수에 넣지 않는다. 키 입력 시 Save/redeploy가 필요하다. 이번 릴리스는 키가 없으며 자동 검색은 비활성으로 표시한다.
+3. `DISCOVERY_MONTHLY_SEARCH_LIMIT=100` 기본값. DB 공유 월 검색 예약 카운터, 기본검색1회/요청, 6시간·32쿼리 메모리 캐시. 환경변수는0~500까지만 허용하며 잘못된 값은0(차단)이다. 무료 크레딧을 다른 앱에서도 쓰면 남은 공급자 한도는 다를 수 있다. 공급자 무료 계정과 PAYG 비활성 상태를 직접 확인한다. 실패 요청도 보수적으로 앱 한도에서 차감한다.
+4. `/api/discovery/status`가 configured일 때 공개 콘텐츠 기본 검색을 화면 진입 시1회 요청한다. 실제 Facebook/TikTok 전체 피드·사진OCR·동영상 이해·평점/리뷰 전체 수집이 아니다. 검색 색인에 없는 게시물은 나오지 않는다. 게시물 원문을 임의 크롤링하지 않는다. API 결과에서 허용된 SNS 출처만 표시하고 원문 링크·색인 발췌·조회일을 보존한다.
+5. 키 없이 본문 가져오기와 전국15개 지역/도시 중심점은 작동한다. 문자 인식/LLM은 없음. 기존 명소와 도시 별칭의 이름 일치 후보만 반환한다. 미확인 신규 카페의 좌표를 만들지 않는다. 도시 중심점은 자동 선택에서 제외한다. 지점 구분·사진 속 장소·새 장소 지오코딩은 추가 데이터 연동이 필요하다.
+6. TikTok의 canonical /@user/video/숫자 링크는 고정 공식 oEmbed endpoint에만 요청해 title을 읽는다. HTML/스크립트는 실행하지 않는다. 단축 링크·Facebook URL만으로 본문 읽기는 지원하지 않으며 본문 붙여넣기를 안내한다. 실제 TikTok oEmbed 호출은 운영에서 검증하지 않았고 mock 계약만 통과했다.
+7. GeoNames 전국 지명 전체를 핫플로 복제하지 않는다. 15개 ADM1과 해당 행정 중심 도시15개만 별도 CC BY4.0 snapshot에 추가했다. OSM 명소6개와 라이선스/날짜/좌표 범위 구분. scripts/import_national_cities.py로 공식 덤프에서 재생성 가능. 모든 지점의 현장/영업/안전 정보는 미검증.
+8. 롤백: DB 변경 없이 이전 Render 배포 사용. 기존 저장 초안의 공개 장소 필드는 호환되며 출처 링크와 city_centre 구분만 추가된다. 고객 정보와 예약 기록은 이번 기능으로 생성하지 않는다.
