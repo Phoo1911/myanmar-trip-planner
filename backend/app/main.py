@@ -293,7 +293,8 @@ class RouteInput(BaseModel):
 @app.post('/routes')
 def make_route(body:RouteInput,s:Session=Depends(db)):
     import math
-    valid={p['id']:p for p in hotspots(s=s)}
+    from .discovery import city_places
+    valid={p['id']:p for p in [*hotspots(s=s),*city_places()]}
     ids=list(dict.fromkeys(body.hotspot_ids))
     if any(identifier not in valid for identifier in ids):raise HTTPException(422,'Place is unavailable or source expired; refresh places')
     groups={}
@@ -307,7 +308,7 @@ def make_route(body:RouteInput,s:Session=Depends(db)):
     origin=next(p for p in PLACES if p['id']==body.start_place)
     ordered=[]
     while groups:
-        region=min(groups,key=lambda k:distance(origin,next(p for p in PLACES if p['id']==k)))
+        region=min(groups,key=lambda k:min(distance(origin,p) for p in groups[k]))
         pending=groups.pop(region)
         while pending:
             stop=min(pending,key=lambda p:distance(origin,p));pending.remove(stop);ordered.append(stop);origin=stop
@@ -325,3 +326,6 @@ def make_route(body:RouteInput,s:Session=Depends(db)):
 
 from .concierge import router as concierge_router
 app.include_router(concierge_router)
+
+from .discovery import router as discovery_router
+app.include_router(discovery_router)
