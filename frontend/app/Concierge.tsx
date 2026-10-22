@@ -2,7 +2,7 @@
 import {useState,useRef,useEffect} from 'react';
 type Lang='ko'|'en'|'my';
 const tr=(l:Lang,ko:string,en:string,my:string)=>({ko,en,my}[l]);
-const api=(process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000')+'/concierge';
+const api=(process.env.NEXT_PUBLIC_API_URL||'/api')+'/concierge';
 async function call(path:string,token='',data?:unknown){const response=await fetch(api+path,{method:data?'POST':'GET',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});if(!response.ok)throw new Error(String(response.status));return response.json()}
 type Pref={region:string;start_date:string;days:number;guests:number;interests:string[];pace:string;services:string[];mobility_needs:string;notes:string;language:Lang};
 type Draft={mode:string;days:{day:number;date:string;stops:{id:string;name:Record<Lang,string>;source:string}[]}[];unmatched_interests:string[]};
@@ -33,7 +33,7 @@ export default function Concierge({lang}:{lang:Lang}){
 }
 export function ConciergeAdmin({lang,token}:{lang:Lang;token:string}){
  const[rows,R]=useState<DeskRequest[]>([]),[places,P]=useState<{id:string;name:Record<Lang,string>}[]>([]),[facts,F]=useState<{place_id:string;field:string;value:string;expired:boolean;version:number}[]>([]),[busy,B]=useState(false),[error,E]=useState('');
- async function load(){R(await call('/admin/requests',token));const response=await fetch((process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000')+'/hotspots');if(!response.ok)throw new Error();P(await response.json());F(await call('/facts'))}
+ async function load(){R(await call('/admin/requests',token));const response=await fetch((process.env.NEXT_PUBLIC_API_URL||'/api')+'/hotspots');if(!response.ok)throw new Error();P(await response.json());F(await call('/facts'))}
  async function run(fn:()=>Promise<void>){B(true);E('');try{await fn()}catch{E(tr(lang,'처리 실패: 인증·현재 버전·확인 근거·금액·기한을 확인하세요.','Failed: check authentication, current version, evidence, amount and validity.','တိုကင်၊ ဗားရှင်း၊ အထောက်အထား၊ ဈေးနှုန်းနှင့် သက်တမ်းကို စစ်ပါ။'))}finally{B(false)}}
  const localTime=(days=0)=>{const d=new Date(Date.now()+days*86400000);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)};
  const money=(text:string)=>{if(!/^\d+(\.\d{1,2})?$/.test(text))throw new Error();const[a,b='']=text.split('.');return Number(a)*100+Number(b.padEnd(2,'0'))};
