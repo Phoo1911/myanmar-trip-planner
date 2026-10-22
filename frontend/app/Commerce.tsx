@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 type Lang='ko'|'en'|'my';
 const tr=(l:Lang,ko:string,en:string,my:string)=>({ko,en,my}[l]);
-const api=process.env.NEXT_PUBLIC_API_URL||'http://localhost:8000';
+const api=process.env.NEXT_PUBLIC_API_URL||'/api';
 type Offer={id:string;name:Record<Lang,string>;supplier:string;kind:string;place_id:string;service_date:string;remaining:number;version:number;currency:string;price_minor:number;verified_at:string;valid_until:string};
 type Receipt={id:string;token:string;status:string;details:{name:Record<Lang,string>;total_minor:number;currency:string;service_date:string;guests:number;supplier:string}};
 const money=(v:number,c:string,l:Lang)=>new Intl.NumberFormat(l==='ko'?'ko-KR':l==='my'?'my-MM':'en-US',{style:'currency',currency:c}).format(v/100);
