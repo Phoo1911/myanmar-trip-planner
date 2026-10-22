@@ -1,5 +1,5 @@
 """Bounded multilingual vector retrieval and evidence-constrained AI suggestions."""
-import hashlib, json, math, os, threading
+import hashlib, json, math, os, threading, logging
 from typing import Literal
 import httpx
 from fastapi import Depends, HTTPException
@@ -49,7 +49,9 @@ def consume(s):
 def provider(operation, payload, key):
     response=httpx.post(BASE+operation,headers={'x-goog-api-key':key},json=payload,timeout=18,follow_redirects=False)
     if response.status_code==429: raise HTTPException(429,'AI provider free quota reached')
-    response.raise_for_status()
+    if response.is_error:
+        logging.getLogger(__name__).warning('AI provider failure operation=%s status=%s',operation,response.status_code)
+        raise HTTPException(502,'AI provider rejected '+operation+' (HTTP '+str(response.status_code)+')')
     return response.json()
 
 def unit(vector):
@@ -126,5 +128,6 @@ def recommend(body:RecommendationInput,s:Session=Depends(db)):
             result.append({'place':allowed[rec.place_id],'reason':rec.reason,'sources':[evidence[eid] for eid in dict.fromkeys(rec.evidence_ids)]})
         return {'mode':'semantic_ai','language':body.language,'retrieval':'multilingual_embedding_cosine','summary':output.summary,'recommendations':result,'discoveries':[d for d in ranked if d['kind']=='search_index_excerpt'],'coverage_limited':True,'warning':warning,'requires_safety_review':True,'road_routing':False}
     except HTTPException: raise
-    except (httpx.HTTPError,ValueError,KeyError,TypeError,IndexError,AttributeError):
+    except (httpx.HTTPError,ValueError,KeyError,TypeError,IndexError,AttributeError) as error:
+        logging.getLogger(__name__).warning('AI pipeline rejected response type=%s',type(error).__name__)
         raise HTTPException(502,'AI retrieval unavailable or ungrounded response; retry later')
