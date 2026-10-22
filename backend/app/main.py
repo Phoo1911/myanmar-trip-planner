@@ -328,4 +328,7 @@ from .concierge import router as concierge_router
 app.include_router(concierge_router)
 
 from .discovery import router as discovery_router
+
+# Registers additional routes on the shared discovery router.
+from . import recommendations
 app.include_router(discovery_router)
