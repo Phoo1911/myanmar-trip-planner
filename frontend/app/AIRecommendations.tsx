@@ -11,7 +11,7 @@ export default function AIRecommendations({lang,region,onAddAll}:{lang:Lang;regi
  useEffect(()=>{const a=new AbortController();fetch('/api/discovery/ai-status',{signal:a.signal}).then(r=>r.ok?r.json():Promise.reject()).then(d=>K(d.configured)).catch(()=>{if(!a.signal.aborted)K(false)});return()=>a.abort()},[]);
  useEffect(()=>{active.current?.abort();R(null);B(false);E('');return()=>active.current?.abort()},[lang,region]);
  async function recommend(){active.current?.abort();const a=new AbortController();active.current=a;B(true);R(null);E('');
-  try{const r=await fetch('/api/discovery/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query,language:lang,region_id:region}),signal:AbortSignal.any([a.signal,AbortSignal.timeout(85000)])});
+  try{const r=await fetch('/api/discovery/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query,language:lang,region_id:region}),signal:AbortSignal.any([a.signal,AbortSignal.timeout(105000)])});
    if(!r.ok)throw Error(String(r.status));const data=await r.json();if(!a.signal.aborted)R(data);
   }catch(e){if(!a.signal.aborted)E(e instanceof Error&&e.message==='429'?tr(lang,'무료 AI 사용 한도에 도달했습니다. 잠시 후 다시 시도하세요.','Free AI quota reached. Try later.','အခမဲ့ AI ကန့်သတ်ချက်ပြည့်ပါပြီ။ နောက်မှပြန်စမ်းပါ။'):e instanceof Error&&e.message==='503'?tr(lang,'AI 연결을 설정하고 있습니다.','AI connection is being configured.','AI ချိတ်ဆက်မှု ပြင်ဆင်နေပါသည်။'):tr(lang,'추천을 만들지 못했습니다. 다시 시도해 주세요.','Could not generate recommendations. Please retry.','အကြံပြုချက် မဖန်တီးနိုင်ပါ။ ပြန်စမ်းပါ။'))}finally{if(!a.signal.aborted)B(false)}
  }
