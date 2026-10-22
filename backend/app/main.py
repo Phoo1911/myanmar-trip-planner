@@ -286,8 +286,14 @@ def import_link(body:SocialLink,s:Session=Depends(db)):
     try:s.commit()
     except IntegrityError:s.rollback()
     return {'id':identifier,'status':'pending_review','automatic_analysis':False}
+class AutoPlace(BaseModel):
+    id:str=Field(pattern=r'^geo:[0-9a-f]{24}$')
+    name:dict[Literal['ko','en','my'],str]
+    lat:float=Field(ge=9,le=29)
+    lng:float=Field(ge=92,le=102)
 class RouteInput(BaseModel):
-    hotspot_ids:list[str]=Field(min_length=1,max_length=24)
+    hotspot_ids:list[str]=Field(default_factory=list,max_length=24)
+    auto_places:list[AutoPlace]=Field(default_factory=list,max_length=24)
     days:int=Field(ge=1,le=14)
     start_place:Literal['yangon','bagan','inle']='yangon'
 @app.post('/routes')
@@ -297,14 +303,21 @@ def make_route(body:RouteInput,s:Session=Depends(db)):
     valid={p['id']:p for p in [*hotspots(s=s),*city_places()]}
     ids=list(dict.fromkeys(body.hotspot_ids))
     if any(identifier not in valid for identifier in ids):raise HTTPException(422,'Place is unavailable or source expired; refresh places')
+    def distance(a,b):
+        x=math.radians(a['lat']-b['lat']);y=math.radians(a['lng']-b['lng'])
+        return math.sin(x/2)**2+math.cos(math.radians(a['lat']))*math.cos(math.radians(b['lat']))*math.sin(y/2)**2
+    known=list(valid.values())
+    # Automatically located venues are unverified client-held points; group them with the nearest known place's region.
+    for p in body.auto_places:
+        if p.id in valid or p.id in ids or any(not 0<len(p.name.get(l,''))<=200 for l in ('ko','en','my')):raise HTTPException(422,'Invalid automatically located place')
+        point={'id':p.id,'name':{l:p.name[l] for l in ('ko','en','my')},'lat':p.lat,'lng':p.lng,'auto_located':True,'location_verified':False}
+        valid[p.id]={**point,'place_id':min(known,key=lambda k:distance(point,k))['place_id']};ids.append(p.id)
+    if not ids or len(ids)>24:raise HTTPException(422,'Choose between 1 and 24 places')
     groups={}
     for identifier in ids:
         spot=valid[identifier];groups.setdefault(spot['place_id'],[]).append(spot)
     if body.days<len(groups):raise HTTPException(422,'Allow at least one day per region')
     if len(ids)>body.days*4:raise HTTPException(422,'Maximum four selected places per day')
-    def distance(a,b):
-        x=math.radians(a['lat']-b['lat']);y=math.radians(a['lng']-b['lng'])
-        return math.sin(x/2)**2+math.cos(math.radians(a['lat']))*math.cos(math.radians(b['lat']))*math.sin(y/2)**2
     origin=next(p for p in PLACES if p['id']==body.start_place)
     ordered=[]
     while groups:
@@ -330,5 +343,6 @@ app.include_router(concierge_router)
 from .discovery import router as discovery_router
 
 # Registers additional routes on the shared discovery router.
-from . import recommendations
+from . import recommendations, geo, share
 app.include_router(discovery_router)
+app.include_router(share.router)

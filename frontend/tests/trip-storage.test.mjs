@@ -32,3 +32,8 @@ test("AI map evidence survives device storage without allowing arbitrary hosts",
  const p={id:"evidence",name:{ko:"장소",en:"Place",my:"နေရာ"},lat:16,lng:96,references:["https://www.openstreetmap.org/way/1","https://www.geonames.org/1298824/","https://evil.test/place"]};
  assert.deepEqual(parsePlaces(JSON.stringify([p]))[0].references,p.references.slice(0,2));
 });
+test('automatically located places keep only a strict true marker',()=>{
+ const auto={...place,id:'geo:'+'a'.repeat(24),auto_located:true};
+ assert.deepEqual(parsePlaces(JSON.stringify([auto])),[auto]);
+ assert.deepEqual(parsePlaces(JSON.stringify([{...auto,auto_located:'yes'}])),[{...place,id:auto.id}]);
+});

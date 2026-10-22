@@ -97,6 +97,10 @@
 .tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
 .tag.request{background:#e6f0ec;color:#1d5a47}.tag.check{background:#fbf1df;color:#5c4415}.tag.info{background:#eef2ef;color:#2e3a35}
 .admin-stage{max-width:1100px;margin:0 auto;padding:24px}
+.tool-card{display:grid;gap:10px;padding:14px;border:1px solid #dde3df;border-radius:12px;background:#fbfcfb}
+.road-list{list-style:none;padding:0;margin:0;display:grid;gap:6px}.road-list li{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:8px 10px;border-radius:8px;background:#f4f6f4}
+.shared-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:12px 24px 0;padding:12px 14px;border:1px solid #1d5a47;border-radius:12px;background:#e6f0ec;font-size:14px}.shared-banner span{flex:1 1 220px}.shared-banner button{padding:8px 14px}
+.card-body h3 .tag{margin-left:6px;vertical-align:middle;font-size:11px}
 @media(max-width:1100px){
  .stage{grid-template-columns:minmax(320px,400px) minmax(0,1fr);height:auto}
  .stage>.panel:first-child{max-height:calc(100vh - 112px)}
