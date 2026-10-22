@@ -38,7 +38,7 @@ def public_url(value):
         return urlunparse(('https',host,p.path,'',urlencode({k:v[0] for k,v in query.items() if k in ('v','id','story_fbid')}),''))
     except ValueError:raise HTTPException(422,'Use a public social post HTTPS URL, without credentials or redirect links')
 def normalize(text):
-    return re.sub(r'[^\w\u1000-\u109f]+',' ',unicodedata.normalize('NFKC',text).casefold()).strip()
+    return re.sub(r'[^\w\u1000-\u109f]+',' ',unicodedata.normalize('NFKC',text).casefold().replace('_',' ')).strip()
 def resolve_text(text,source=None):
     normalized=' '+normalize(text)+' ';matches={};aliases={}
     for p in [*catalog_places(),*city_places()]:
@@ -47,9 +47,15 @@ def resolve_text(text,source=None):
             n=normalize(name)
             if len(n)<4:continue
             aliases.setdefault(n,{})[p['id']]=p
+            if ' ' in n and len(n)>=7:aliases.setdefault(n.replace(' ',''),{})[p['id']]=p
     ambiguous=[]
     for name,places in aliases.items():
-        if (name not in normalized if any('\u1000'<=c<='\u109f' for c in name) else ' '+name+' ' not in normalized):continue
+        if any('\u1000'<=c<='\u109f' for c in name):
+            mentioned=name in normalized
+        elif any('\uac00'<=c<='\ud7a3' for c in name):
+            mentioned=bool(re.search(r'(?<!\w)'+re.escape(name)+r'(?=(?:에서|으로|까지|부터|와|과|를|을|에|도|는|은|이|가|랑|하고)?(?:\s|$))',normalized))
+        else:mentioned=' '+name+' ' in normalized
+        if not mentioned:continue
         if len(places)!=1:ambiguous.append(name);continue
         p=next(iter(places.values()));matches[p['id']]={'place':p,'matched_name':name,'source_url':source,'confidence':'name_match_candidate','verified':False}
     return {'matches':list(matches.values())[:24],'ambiguous_names':sorted(set(ambiguous))[:24],'method':'catalog_name_match','unmatched_possible':True,'popularity_verified':False,'photos_ocr':False}
