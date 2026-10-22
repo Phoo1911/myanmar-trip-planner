@@ -24,10 +24,17 @@ export default function Prepare({lang,cart,onPlan,safetySource}:{lang:Lang;cart:
      {i===0&&check(tr(lang,'지역별 여행경보','Regional travel advice','ဒေသအလိုက် ခရီးသွားသတိပေးချက်'),tr(lang,'출발 전 최신 경보를 확인하세요. 이 서비스는 안전을 보장하지 않습니다.','Check the latest advice before departure. This service does not certify safety.','ထွက်ခွာမီ နောက်ဆုံးသတိပေးချက်ကို စစ်ပါ။'),'info')}
      {d.stops.length>0&&check(tr(lang,'입장·복장·영업 조건','Entry, dress code and opening','ဝင်ခွင့်၊ ဝတ်စားဆင်ယင်မှု၊ ဖွင့်ချိန်'),tr(lang,'확인된 출처가 없어요. 방문 전에 확인하거나 운영팀에 물어보세요.','No verified source yet. Check before visiting or ask the travel desk.','အတည်ပြုရင်းမြစ် မရှိသေးပါ။'),'check')}
      {d.stops.length>1&&check(tr(lang,'장소 사이 이동 시간','Travel time between stops','နေရာများကြား သွားလာချိန်'),tr(lang,'직선거리 순서일 뿐, 실제 도로·소요시간은 확인되지 않았어요.','Order is straight-line only; road routes and times are unverified.','လမ်းကြောင်းနှင့် ကြာချိန် မစစ်ရသေးပါ။'),'check')}
-     {check(tr(lang,'차량·기사','Vehicle and driver','ယာဉ်နှင့် ယာဉ်မောင်း'),tr(lang,'아래 요청서에서 ‘차량’을 고르면 운영팀이 가능 여부와 견적을 확인해요.','Choose “Vehicle” in the request below; the desk checks availability and quotes.','အောက်တွင် ယာဉ်ကို ရွေးပါ။'),'request')}
-     {check(tr(lang,'숙소','Stay','တည်းခိုရေး'),tr(lang,'희망 지역·예산을 추가 요청에 적어 주세요.','Add your preferred area and budget to the notes.','လိုချင်သောနေရာနှင့် ဘတ်ဂျက်ကို ရေးပါ။'),'request')}
+     {!d.stops.length&&<li className="fine">{tr(lang,'장소를 더 담거나, 아래 요청서에 현지 추천을 요청할 수 있어요.','Add more places, or ask the travel desk for local suggestions below.','နေရာထပ်ထည့်ပါ သို့မဟုတ် ဒေသအကြံပြုချက် တောင်းပါ။')}</li>}
     </ul>
    </article>)}
+   {cart.length>0&&<article className="day-card">
+    <div className="results-head"><h2>{tr(lang,'여행 전체','Whole trip','ခရီးစဉ်တစ်ခုလုံး')}</h2><span className="fine">{tr(lang,'아래 요청서에서 선택','Choose in the request below','အောက်ပါတောင်းဆိုမှုတွင် ရွေးပါ')}</span></div>
+    <ul className="check-list">
+     {check(tr(lang,'차량·기사','Vehicle and driver','ယာဉ်နှင့် ယာဉ်မောင်း'),tr(lang,'‘차량’을 고르면 운영팀이 가능 여부와 견적을 확인해요.','Choose “Vehicle”; the desk checks availability and quotes.','ယာဉ်ကို ရွေးပါ။'),'request')}
+     {check(tr(lang,'숙소','Stay','တည်းခိုရေး'),tr(lang,'‘숙소’를 고르고 희망 지역·예산을 추가 요청에 적어 주세요.','Choose “Stay” and add your preferred area and budget.','တည်းခိုရေးကို ရွေးပြီး နေရာနှင့် ဘတ်ဂျက် ရေးပါ။'),'request')}
+     {check(tr(lang,'현지 가이드','Local guide','ဒေသဧည့်လမ်းညွှန်'),tr(lang,'‘가이드’를 고르고 원하는 언어를 적어 주세요.','Choose “Guide” and note the language you need.','ဧည့်လမ်းညွှန်ကို ရွေးပြီး ဘာသာစကား ရေးပါ။'),'request')}
+    </ul>
+   </article>}
   </div>
   <div className="request-card">{ready&&<Concierge key={notes} lang={lang} initial={{days:draft?.days,notes}}/>}</div>
   <details className="request-card"><summary>{tr(lang,'운영자 배정 상품 바로 예약','Book operator-allocated offers','ခွဲတမ်းပါ ကမ်းလှမ်းချက် ဘွတ်ကင်')}</summary><Commerce lang={lang}/></details>

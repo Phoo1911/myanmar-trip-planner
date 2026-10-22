@@ -19,6 +19,7 @@ export default function Home(){
  useEffect(()=>{document.documentElement.lang=lang},[lang]);
  useEffect(()=>{const a=new AbortController();fetch(api+'/safety',{signal:a.signal}).then(r=>r.ok?r.json():Promise.reject()).then(S).catch(()=>{});return()=>a.abort()},[]);
  useEffect(()=>{window.scrollTo(0,0)},[step]);
+ useEffect(()=>{if(!notice)return;const t=setTimeout(()=>NOTICE(''),6000);return()=>clearTimeout(t)},[notice]);
 
  function add(spots:TripSpot[]){
   if(spots.filter(p=>!cart.some(old=>old.id===p.id)).length>24-cart.length){NOTICE(tr(lang,'최대 24곳까지 저장할 수 있습니다. 일부 장소만 선택해 주세요.','Choose fewer places. A trip can hold 24 places.','၂၄ နေရာအထိသာ သိမ်းနိုင်သည်။'));return}
