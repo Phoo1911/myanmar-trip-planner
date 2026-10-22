@@ -21,3 +21,9 @@ test('tampered or incomplete routes cannot inject stops or omit selected places'
  for(const route of [{days:[{day:1,stops:[]},{day:2,stops:[]}]},{days:[{day:1,stops:[{id:'other'}]},{day:2,stops:[]}]},{days:[{day:1,stops:[place]},{day:2,stops:[place]}]}])assert.equal(parseDraft(JSON.stringify({...draft(),route}),[place]),null);
  assert.equal(parseDraft('{',[place]),null);
 });
+
+test('content references and city scope survive restore; unsafe references are stripped',()=>{
+ const result=parsePlaces(JSON.stringify([{...place,coordinate_scope:'city_centre',references:['https://www.facebook.com/example/posts/1','javascript:alert(1)','https://evil.test/a','https://www.facebook.com/posts/2?access_token=unsafe']}]))[0];
+ assert.equal(result.coordinate_scope,'city_centre');
+ assert.deepEqual(result.references,['https://www.facebook.com/example/posts/1']);
+});
