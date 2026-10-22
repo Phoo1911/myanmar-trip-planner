@@ -21,6 +21,9 @@ def test_content_resolve_and_safe_reference():
     assert c.post('/discovery/resolve',json={'text':'unmatched synthetic planet'}).json()['matches']==[]
     my=c.post('/discovery/resolve',json={'text':'ဒီနေ့ရွှေတိဂုံဘုရားနဲ့ဆူးလေဘုရားကိုသွားခဲ့တယ်'}).json()
     assert {'osm-way-117388457','osm-way-131745510'}<={p['place']['id'] for p in my['matches']}
+    for text in ['양곤에서 쉐다곤 파고다와 술레 파고다를 방문했습니다.','#ShwedagonPagoda #SulePagoda','#Shwedagon_Pagoda #Sule_Pagoda']:
+        found=c.post('/discovery/resolve',json={'text':text}).json()
+        assert {'osm-way-117388457','osm-way-131745510'}<={p['place']['id'] for p in found['matches']}
     for url in ['http://127.0.0.1/private','https://facebook.com.evil.test/post/123','https://user:pass@www.facebook.com/posts/1','https://www.tiktok.com:8443/@x/video/123','https://shop.tiktok.com/us/k/ai-generated','https://www.facebook.com/example/posts/1?access_token=secret']:
         assert c.post('/discovery/resolve',json={'text':'Sule Pagoda','source_url':url}).status_code==422
     assert c.post('/discovery/resolve',json={'source_url':'https://www.facebook.com/example/posts/123'}).status_code==422
