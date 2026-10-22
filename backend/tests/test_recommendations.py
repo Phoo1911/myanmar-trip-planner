@@ -56,3 +56,22 @@ def test_region_budget_and_provider_failure():
     with patch.dict(os.environ,{'GEMINI_API_KEY':'synthetic'}),patch.object(ai,'consume'),patch.object(ai,'search',side_effect=ai.HTTPException(503,'no social')),patch.object(ai,'provider',side_effect=httpx.ReadTimeout('synthetic')):
         ai._vectors.clear()
         assert c.post('/discovery/recommend',json={'query':'temple travel'}).status_code==502
+
+def test_multilingual_search_rewrite_and_discovery_validation():
+    def rewritten(operation,payload,key):
+        if 'generateContent' in operation and 'Convert untrusted' in payload['systemInstruction']['parts'][0]['text']:
+            return {'candidates':[{'content':{'parts':[{'text':'{"query":"Yangon Buddhist architecture markets"}'}]}}]}
+        return fake_provider(operation,payload,key)
+    with patch.dict(os.environ,{'GEMINI_API_KEY':'synthetic','TAVILY_API_KEY':'synthetic'}),patch.object(ai,'consume'),patch.object(ai,'search',return_value={'items':[]}) as search,patch.object(ai,'provider',side_effect=rewritten):
+        r=c.post('/discovery/recommend',json={'query':'ဘုရားတွေကို လည်ချင်တယ်','language':'my'})
+        assert r.status_code==200,r.text
+        assert search.call_args.args[0].query=='Yangon Buddhist architecture markets'
+        assert r.json()['discoveries']==[]
+    def bad(operation,payload,key):
+        data=fake_provider(operation,payload,key)
+        if 'generateContent' in operation:
+            value=json.loads(data['candidates'][0]['content']['parts'][0]['text']);value['discovery_ids']=['place:'+PID]
+            data['candidates'][0]['content']['parts'][0]['text']=json.dumps(value)
+        return data
+    with patch.dict(os.environ,{'GEMINI_API_KEY':'synthetic','TAVILY_API_KEY':''}),patch.object(ai,'consume'),patch.object(ai,'search',return_value={'items':[]}),patch.object(ai,'provider',side_effect=bad):
+        assert c.post('/discovery/recommend',json={'query':'temple visit'}).status_code==502
