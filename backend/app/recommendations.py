@@ -11,7 +11,7 @@ from .main import db, RateBucket, catalog_places
 _vectors = {}
 _lock = threading.Lock()
 EMBED = 'gemini-embedding-001'
-MODEL = 'gemini-2.5-flash-lite'
+MODEL = 'gemini-3.1-flash-lite'
 BASE = 'https://generativelanguage.googleapis.com/v1beta/models/'
 
 class RecommendationInput(BaseModel):
