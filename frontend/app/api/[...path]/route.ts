@@ -15,7 +15,7 @@ async function proxy(req:NextRequest,{params}:{params:Promise<{path:string[]}>})
   while(true){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>16384){await reader.cancel();return NextResponse.json({detail:'Too large'},{status:413,headers:{'Cache-Control':'no-store'}})}chunks.push(value)}
   const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}body=new TextDecoder().decode(bytes);
  }
- const response=await fetch(base+'/'+path.map(encodeURIComponent).join('/')+req.nextUrl.search,{method:req.method,headers,body,cache:'no-store',signal:AbortSignal.timeout(path.join('/')==='discovery/recommend'?80000:40000),redirect:'error'});
+ const response=await fetch(base+'/'+path.map(encodeURIComponent).join('/')+req.nextUrl.search,{method:req.method,headers,body,cache:'no-store',signal:AbortSignal.timeout(path.join('/')==='discovery/recommend'?100000:40000),redirect:'error'});
  const retry=response.headers.get('Retry-After');
  return new NextResponse(await response.text(),{status:response.status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...(retry?{'Retry-After':retry}:{})}});
  }catch{return NextResponse.json({detail:'Service unavailable'},{status:502,headers:{'Cache-Control':'no-store'}})}
