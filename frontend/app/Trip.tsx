@@ -4,13 +4,14 @@ import {DRAFT_KEY,parseDraft,signature,type Route,type TripSpot} from './trip-st
 export type {TripSpot} from './trip-storage';
 type Lang='ko'|'en'|'my';
 const tr=(l:Lang,ko:string,en:string,my:string)=>({ko,en,my}[l]);
-export default function Trip({lang,cart,onRemove,onBrowse}:{lang:Lang;cart:TripSpot[];onRemove:(id:string)=>void;onBrowse:()=>void}){
+export default function Trip({lang,cart,onRemove,onBrowse,onRoute}:{lang:Lang;cart:TripSpot[];onRemove:(id:string)=>void;onBrowse:()=>void;onRoute?:(route:Route|null)=>void}){
  const[days,N]=useState(3),[busy,B]=useState(false),[error,E]=useState(''),[result,R]=useState<{route:Route;key:string}|null>(null),[savedAt,S]=useState(''),[message,M]=useState('');
  const request=useRef<AbortController|null>(null),current=useRef('');
  current.current=signature(cart,days);
  const route=result?.key===current.current?result.route:null;
  useEffect(()=>{try{const saved=parseDraft(localStorage.getItem(DRAFT_KEY),cart);if(saved){N(saved.days);R({route:saved.route,key:signature(cart,saved.days)});S(saved.savedAt)}}catch{M(tr(lang,'기기 저장소에 접근할 수 없습니다.','Device storage is unavailable.','စက်တွင်းသိမ်းဆည်းမှု မရပါ။'))}return()=>request.current?.abort()},[]);
  useEffect(()=>{request.current?.abort();B(false);E('');M('')},[cart,days]);
+ useEffect(()=>{onRoute?.(route)},[route]);
  async function generate(){request.current?.abort();const controller=new AbortController();request.current=controller;const key=current.current;B(true);E('');R(null);S('');M('');
  try{const response=await fetch((process.env.NEXT_PUBLIC_API_URL||'/api')+'/routes',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.any([controller.signal,AbortSignal.timeout(20000)]),body:JSON.stringify({hotspot_ids:cart.map(p=>p.id),days,start_place:'yangon'})});
  if(!response.ok){throw Error(response.status===422?'inputs':response.status===429?'limit':'network')}
