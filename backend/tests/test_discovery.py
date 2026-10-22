@@ -25,6 +25,12 @@ def test_content_resolve_and_safe_reference():
         assert c.post('/discovery/resolve',json={'text':'Sule Pagoda','source_url':url}).status_code==422
     assert c.post('/discovery/resolve',json={'source_url':'https://www.facebook.com/example/posts/123'}).status_code==422
     assert c.post('/discovery/resolve',json={'text':'x'*8001}).status_code==422
+    assert c.post('/discovery/resolve',json={'text':'😀'*4000}).status_code==422
+    from app.discovery import resolve_text
+    duplicate={'id':'synthetic-duplicate','name':{'en':'Sule Pagoda'}}
+    with patch('app.discovery.city_places',return_value=[duplicate]):
+        ambiguous=resolve_text('Sule Pagoda')
+        assert ambiguous['matches']==[] and 'sule pagoda' in ambiguous['ambiguous_names']
 
 def test_search_unconfigured_and_failure():
     with patch.dict(os.environ,{'TAVILY_API_KEY':''}):assert c.post('/discovery/search',json={'query':'cafe'}).status_code==503
