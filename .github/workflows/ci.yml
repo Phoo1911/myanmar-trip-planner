@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: cd frontend && pnpm install --frozen-lockfile && pnpm typecheck && pnpm build
+      - run: cd frontend && pnpm install --frozen-lockfile && pnpm test && pnpm typecheck && pnpm build
       - run: docker compose build
         env:
           POSTGRES_PASSWORD: ci-test-password
