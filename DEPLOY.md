@@ -38,3 +38,10 @@ The travel desk stores requests and messages internally. It sends no external em
 Local facts require a public HTTPS evidence URL, actual checked time and recheck date within seven days. Expired facts become unknown. Opening/foreign-access negative facts exclude a place from drafts; negative step-free entry excludes it when a mobility need was entered. Missing transport times, walking conditions, check-in and safety remain checks, never certified. Public map locations still use the dated six-landmark snapshot.
 
 Translation is operator-reviewed original/translated text, not live automatic translation. Fixed interface supports ko/en/my; native Burmese editorial review remains required. The public /concierge/status reports enabled/manual-delivery/operator-reviewed mode only; it reveals no credentials. Google Maps, broad SNS discovery, supplier integrations and automatic translation require separate provider setup and are not enabled by this release.
+
+## 2026-10-22 지도/기기 저장 릴리스
+- 서버 DB 스키마 변경 없음(004 유지). 프론트 `journey:places:v1`, `journey:draft:v1`에는 공개 장소/방문 초안만 저장. 관리자·접수증·연락처는 저장 금지. 기기 변경/브라우저 데이터 삭제 시 복원되지 않음.
+- `NEXT_PUBLIC_API_URL=/api`가 기본. 브라우저는 동일 출처 Next 프록시를 사용, API_INTERNAL_ORIGIN은 서버 전용. 기존 직접 API URL 설정은 그대로 지원.
+- 보안 헤더: frame-ancestors/object-src/base-uri 제한, frame 차단, nosniff, referrer/permissions 정책, production HSTS. 전체 script CSP는 Next 부트스트랩을 검증하지 않고 강제하지 않음.
+- 릴리스 검증: pnpm test / typecheck / build, pytest, Alembic head, API→DB 및 API 오류/복구, 저장 후 새로고침, 모바일 지도/목록. 전체 PG/Docker 검증은 원격 CI에서 수행. 실패 시 이전 Render 배포로 rollback. 신규 DB migration 없음; 로컬 초안은 지워질 수 있으나 서버 고객 데이터는 변경하지 않음.
+- 무료 배포 제한과 실제 공급사 연결 제한은 COMMERCIAL_REVIEW.md의 P0를 따른다. 무료 체험판을 상용 운영으로 전환하지 않는다.
