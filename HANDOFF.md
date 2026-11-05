@@ -6,7 +6,7 @@
 - 이 폴더가 실제 앱 소스다. 인접 OrderDesk, myanmar-ai-saas-template은 별도 프로젝트이며 수정하지 않는다.
 - AGENTS.md → HANDOFF.md → SPEC.md → VERIFICATION.md → COMMERCIAL_REVIEW.md → DEPLOY.md 순서로 읽는다.
 - 로컬 폴더에는 .git이 없다(2026-10-22 직접 확인). GitHub와 자동 동기화되는 checkout이 아니다. 기존 폴더를 덮어쓰거나 git reset하지 않는다. 필요하면 별도 폴더에 비공개 저장소를 clone하고, 이 로컬의 최신 문서/수정분과 비교해서 옮긴다.
-- GitHub: https://github.com/Phoo1911/myanmar-journey (private)
+- GitHub: https://github.com/Phoo1911/myanmar-trip-planner (private)
 - 공개 체험: https://myanmar-journey-free.onrender.com/
 - Render: myanmar-journey-free / srv-dbc8ahifngtc739ch26g. 무료 리소스만 사용하도록 승인됨. 유료 전환/결제 계정 연결은 승인되지 않음.
 

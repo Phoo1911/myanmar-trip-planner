@@ -1,4 +1,4 @@
-# Myanmar Journey MVP
+# Myanmar Trip Planner MVP
 
 ## Scope and acceptance
 Korean, English and Burmese single-page UI: destination search, map, itinerary generation, accommodation/transport/tour inquiries, private receipt lookup, admin queue and approval/rejection.

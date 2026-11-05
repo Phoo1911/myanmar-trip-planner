@@ -1,4 +1,4 @@
-# Myanmar Journey continuation
+# Myanmar Trip Planner continuation
 
 Read AGENTS.md and HANDOFF.md before making changes. Follow SPEC.md and preserve existing validation/security boundaries. HANDOFF.md separates implemented code, live-verified behavior, unresolved multilingual AI failures, and planned media ingestion.
 

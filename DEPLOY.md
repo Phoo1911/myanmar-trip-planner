@@ -2,7 +2,7 @@
 
 기본 `render.yaml`은 무료 Web 서비스 1개와 무료 PostgreSQL 1개만 생성합니다. `Dockerfile.free`에 Next.js와 FastAPI를 함께 구성해 유료 private service가 필요하지 않습니다. API는 컨테이너 loopback에만 노출되고 웹 `/api` 프록시가 내부 토큰을 전달합니다. 시작 시 DB 마이그레이션을 실행합니다.
 
-Render → New Blueprint → Phoo1911/myanmar-journey → main → render.yaml. 생성 전 두 리소스의 plan이 **Free**인지 확인하세요. 유료 인스턴스나 카드 등록을 요구하면 생성하지 말고 설정을 다시 확인합니다. 계정의 별도 검증 요구가 있을 경우 우회하지 않습니다.
+Render → New Blueprint → Phoo1911/myanmar-trip-planner → main → render.yaml. 생성 전 두 리소스의 plan이 **Free**인지 확인하세요. 유료 인스턴스나 카드 등록을 요구하면 생성하지 말고 설정을 다시 확인합니다. 계정의 별도 검증 요구가 있을 경우 우회하지 않습니다.
 
 - 무료 웹은 15분 미사용 후 대기하며 재접속 시 시작에 약 1분 걸릴 수 있습니다.
 - 무료 PostgreSQL은 생성 후 30일에 만료되므로 영구 운영용으로 사용하지 않습니다. 만료 전 필요한 합성 테스트 데이터를 내보내세요.
