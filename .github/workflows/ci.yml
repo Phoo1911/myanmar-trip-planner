@@ -54,7 +54,7 @@ jobs:
           docker run -d --name journey-free --network "$network" -p 127.0.0.1:3010:10000 -e DATABASE_URL=postgresql+psycopg://travel:ci-test-password@db:5432/travel -e APP_ENV=production -e REQUIRE_PROXY_TOKEN=true -e CORS_ORIGINS= -e ADMIN_TOKEN -e RECEIPT_SECRET -e INTERNAL_PROXY_TOKEN journey-free
           curl --retry 30 --retry-delay 2 --retry-all-errors -fsS http://localhost:3010/api/health
           curl -fsS http://localhost:3010 > /tmp/free-page.html
-          python -c "assert 'Free preview' in open('/tmp/free-page.html').read() or '무료 체험' in open('/tmp/free-page.html').read()"
+          python -c "assert 'Myanmar Trip Planner' in open('/tmp/free-page.html').read(); assert 'sleeps when idle' not in open('/tmp/free-page.html').read(); assert '무료 DB는 생성 후 30일' not in open('/tmp/free-page.html').read()"
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3010/api/admin/bookings)" = 401
         env:
           POSTGRES_PASSWORD: ci-test-password
