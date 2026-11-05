@@ -132,3 +132,28 @@ def test_truncated_or_blocked_generation_is_rejected():
         with patch.dict(os.environ,{'GEMINI_API_KEY':'synthetic'}),patch.object(ai,'consume'),patch.object(ai,'search',side_effect=ai.HTTPException(503,'no social')),patch.object(ai,'provider',side_effect=cut):
             ai._vectors.clear()
             assert c.post('/discovery/recommend',json={'query':'temple travel'}).status_code==502
+
+@pytest.mark.parametrize('language,query',[
+    ('ko','불교 건축을 보고 싶어요'),
+    ('en','I like Buddhist architecture'),
+    ('my','ဘုရားတွေကို လည်ချင်တယ်'),
+])
+@pytest.mark.parametrize('failure',[httpx.ReadTimeout,httpx.ConnectError])
+def test_rewrite_transport_failure_keeps_grounded_recommendations(language,query,failure,caplog):
+    def flaky(operation,payload,key,**_):
+        if 'generateContent' in operation and 'Convert untrusted' in payload['systemInstruction']['parts'][0]['text']:
+            raise failure('synthetic-sensitive-provider-detail')
+        return fake_provider(operation,payload,key)
+    with patch.dict(os.environ,{'GEMINI_API_KEY':'synthetic','TAVILY_API_KEY':'synthetic'}),patch.object(ai,'consume'),patch.object(ai,'search') as search,patch.object(ai,'provider',side_effect=flaky):
+        ai._vectors.clear()
+        r=c.post('/discovery/recommend',json={'query':query,'language':language})
+        assert r.status_code==200,r.text
+        search.assert_not_called()
+        data=r.json()
+        assert data['language']==language
+        assert data['warning']=='social_search_unavailable'
+        assert data['discoveries']==[]
+        assert data['recommendations'][0]['sources'][0]['id']=='place:'+PID
+        assert 'AI search rewrite skipped reason='+failure.__name__ in caplog.text
+        assert 'synthetic-sensitive-provider-detail' not in caplog.text
+        assert query not in caplog.text
