@@ -1,5 +1,12 @@
 # 실행 검증 기록 — 2026-10-21
 
+## Optional search rewrite transport recovery — 2026-11-05
+- Scope: only optional English social-search rewrite transport errors. ReadTimeout/ConnectError now skip social search and continue catalog-grounded AI recommendations, explicitly warning social_search_unavailable. Embedding/final-generation and grounding failures still fail; no fabricated sources or automatic write retries.
+- Reproduced before fix: six synthetic cases (ko/en/my × ReadTimeout/ConnectError) returned502. After fix: all six return200, preserve catalog evidence IDs, return no social discoveries, never call social search with raw preferences, and log only error class (not exception detail/preferences).
+- Downloaded current GitHub main ZIP at b2f0e0a into an isolated folder; existing local project was not overwritten. Backend Python3.12: 35 tests passed (one existing Starlette TestClient deprecation warning). Frontend: five tests, typecheck and Next.js production build passed with frozen lockfile. Local SQLite Alembic upgrade/current:004(head). No schema/dependency changes.
+- Browser review: GitHub listed ede59d9 as deployed; public Render app woke successfully and displayed21 mapped records and sourced content on2026-11-05. This checks the pre-change deployment only. The cached README claim that Tavily is unconfigured is stale relative to the observed live content search and HANDOFF.md.
+- Limits: provider failures are injected fixtures; no live Gemini call or induced production outage was used to prove this fix. PostgreSQL/Docker and new deployment status require remote CI evidence separately. The previously reported intermittent Korean502/503 issue is not claimed fully resolved.
+
 ## 저장소 및 재현 가능한 원격 검증
 - 비공개 저장소: https://github.com/Phoo1911/myanmar-journey
 - 검증한 코드 커밋: 6dbac1e1c575b80f4e836377ab10096ab33c3937

@@ -81,3 +81,7 @@ Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용
 - Three-language prompts, UI/loading/errors and model-output language requested. Test cross-language synthetic vectors, ranking vs literal overlap, region scope, missing credential, budget, forged IDs/evidence, bad vectors/provider failures. Live model and native Burmese quality require separate verification.
 
 - Live multilingual refinement: normalize travel intent into a bounded English discovery query before social search; retain original-language query for embeddings. AI selects relevant source IDs only, and server rejects fabricated discovery IDs. Similarity is not a popularity score. Gemini generation uses currently available gemini-3.1-flash-lite; model availability must be smoke-tested, not inferred from old pricing entries.
+
+## Optional search rewrite recovery — 2026-11-05
+- A timeout or connection failure during the optional English search rewrite skips social search and continues catalog-grounded semantic recommendations in ko/en/my with warning=social_search_unavailable. Never send an unrewritten query to social search or fabricate source results.
+- Embedding or final-generation failures still fail explicitly; grounding validation and quota limits remain enforced. Log only the rewrite error class, never provider exception details or preference text.
