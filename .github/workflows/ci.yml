@@ -41,7 +41,7 @@ jobs:
           docker compose up -d
           curl --retry 20 --retry-delay 2 --retry-all-errors -fsS http://localhost:8000/health
           curl --retry 20 --retry-delay 2 --retry-all-errors -fsS http://localhost:3000 > /tmp/page.html
-          python -c "assert 'Myanmar Journey' in open('/tmp/page.html').read()"
+          python -c "assert 'Myanmar Trip Planner' in open('/tmp/page.html').read()"
           curl --retry 10 --retry-delay 2 --retry-all-errors -fsS http://localhost:3000/api/health
         env:
           POSTGRES_PASSWORD: ci-test-password
