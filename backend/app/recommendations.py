@@ -132,7 +132,8 @@ def recommend(body:RecommendationInput,s:Session=Depends(db)):
                 search_query=json.loads(output_text(rewrite))['query'].strip()
                 if len(search_query)>100: search_query=search_query[:100].rsplit(' ',1)[0]
                 if not 3<=len(search_query)<=100: raise ValueError('Invalid search rewrite')
-            except (HTTPException,ValueError,KeyError,TypeError,IndexError,AttributeError) as error:
+            except (HTTPException,httpx.HTTPError,ValueError,KeyError,TypeError,IndexError,AttributeError) as error:
+                # The optional rewrite may time out independently of catalog retrieval and generation.
                 # Raw non-English queries return unrelated posts, so skip social evidence rather than search with them.
                 logging.getLogger(__name__).warning('AI search rewrite skipped reason=%s',str(error) if type(error) is ValueError and str(error) in ('Invalid search rewrite','Truncated output','Blocked output') else type(error).__name__)
                 raise HTTPException(503,'Search rewrite unavailable')
