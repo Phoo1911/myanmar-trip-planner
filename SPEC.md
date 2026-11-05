@@ -85,3 +85,6 @@ Facebook/TikTok 링크 등록은 메타데이터 자동 수집과 구별. 사용
 ## Optional search rewrite recovery — 2026-11-05
 - A timeout or connection failure during the optional English search rewrite skips social search and continues catalog-grounded semantic recommendations in ko/en/my with warning=social_search_unavailable. Never send an unrewritten query to social search or fabricate source results.
 - Embedding or final-generation failures still fail explicitly; grounding validation and quota limits remain enforced. Log only the rewrite error class, never provider exception details or preference text.
+
+## Public presentation cleanup — 2026-11-05
+- Remove hosting sleep/DB expiry/demo infrastructure banner from public screens. Retain operational limits in deployment documentation and keep contextual booking/privacy/safety notices. Public footer shows only the product name. Template and AI-unavailable labels use visitor-facing language without API-key/setup details. No hosting plan, data retention, booking authority or demo-mode changes.
